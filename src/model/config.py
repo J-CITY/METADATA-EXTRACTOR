@@ -1,6 +1,5 @@
 import os
 
-from .utils.logger import getLogger
 from .utils.utils import getCompactGloveVectors, loadDictionary, getProcessingWord
 
 class Config():
@@ -8,8 +7,6 @@ class Config():
         # directory for training outputs
         if not os.path.exists(self.dirOutput):
             os.makedirs(self.dirOutput)
-        # create instance of logger
-        self.logger = getLogger(self.pathLog)
         # load if requested (default)
         if load:
             self.load()
