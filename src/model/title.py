@@ -1,8 +1,19 @@
-from main import PDFContainer
 import re
 import codecs
 
-title = ''
+def extractTitle(text):
+    title = re.search(r'PICES SCIENTIFIC REPORT(\s*)No\.(\s*)([0-9]+),?(\s*)[0-9]{4}([a-zA-z0-9\.,\-\s]*)( \n)*', text, re.IGNORECASE|re.UNICODE)
+    if title is None:
+        return ''
+    _title = title.group(0)
+    tt = _title.split('\n')
+    _title = ''
+    for t in tt:
+        if len(t) > 2:
+            _title += t + '\n'
+
+    return _title
+
 
 # pdf = PDFContainer(format="text", codec='utf-8')	
 # pdf.convertPDF("53.pdf")
@@ -12,12 +23,11 @@ title = ''
 # TXTfile = codecs.open("out1.txt", "w", "utf-8")
 # TXTfile.write(txt)
 # TXTfile.close()
-txt = ''
-with codecs.open("out1.txt", "r", "utf-8") as f:
-    txt = f.read()
-# txts = txt.split('\n')
-
-title = re.search(r'PICES SCIENTIFIC REPORT(\s*)No\.(\s*)([0-9]+),(\s*)[0-9]{4}([a-zA-z0-9\.,\-\s]*)ISBN', txt) .group(0)
+#txt = ''
+#with codecs.open("out1.txt", "r", "utf-8") as f:
+#    txt = f.read()
+#
+#title = re.search(r'PICES SCIENTIFIC REPORT(\s*)No\.(\s*)([0-9]+),(\s*)[0-9]{4}([a-zA-z0-9\.,\-\s]*)ISBN', txt) .group(0)
 
 # isTitle = False
 # isYear = False
@@ -56,8 +66,8 @@ title = re.search(r'PICES SCIENTIFIC REPORT(\s*)No\.(\s*)([0-9]+),(\s*)[0-9]{4}(
 # 	else:
 # 		isTitle = True
 # 		title += t
-		
-print(title)
+
+#print(title)
 		
 		
 		

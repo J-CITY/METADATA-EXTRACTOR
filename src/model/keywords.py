@@ -1,11 +1,19 @@
+import os, sys
+parentPath = os.path.abspath("..")
+if parentPath not in sys.path:
+	sys.path.insert(0, parentPath)
+
 import string
 from collections import Counter, defaultdict
 from itertools import chain, groupby, product
+from config.dictionary import supportWords
 import nltk
 from enum import Enum
 from nltk.tokenize import wordpunct_tokenize
 import nltk.data
 import codecs
+import re
+
 METRIC_DEGREE_DIV_FREQUENCY = 0  # d / f
 METRIC_DEGREE = 1  # d
 METRIC_FREQUENCY = 2  # f
@@ -33,16 +41,40 @@ class KeywordExtractor:
         self.rankList = None
         self.rankedPhrases = None
 
+    def _filter(self, sents):
+        res = []
+        for s in sents:
+            flag = False
+            for sw in supportWords:
+                if s.find(sw) != -1:
+                    flag = True
+                    break
+            if flag:
+                res.append(s)
+
+        return res
+
     def extractKeyWords(self, text):
         sents = self.tokenizer.tokenize(text)
+        fsents = self._filter(sents)
         #sents = nltk.tokenize.sent_tokenize(text)
-        self.extractKeyWordsFromSentences(sents)
+        self.extractKeyWordsFromSentences(fsents)
 
     def extractKeyWordsFromSentences(self, sentences):
         phraseList = self._genPhrases(sentences)
         self._calcFrequency(phraseList)
         self._calcWordGraph(phraseList)
         self._calcRank(phraseList)
+        self._filterPhrases()
+
+    def _filterPhrases(self):
+        res = []
+        expr = re.compile('[!@#$%^&*()_+=?/.,;:°–\\-0-9”`~]+', re.UNICODE)
+        for p in self.rankedPhrases:
+            if expr.search(p) != None:
+                continue
+            res.append(p)
+        self.rankedPhrases = res
 
     def getRankedPhrases(self):
         return self.rankedPhrases
@@ -87,6 +119,10 @@ class KeywordExtractor:
         phrases = set()
         for sentence in sentences:
             words = [word.lower() for word in wordpunct_tokenize(sentence)]
+
+            #porter = nltk.PorterStemmer()
+            #_words = [porter.stem(t) for t in words]
+
             phrases.update(self._getPhraseWords(words))
         return phrases
 
@@ -94,24 +130,27 @@ class KeywordExtractor:
         groups = groupby(words, lambda x: x not in self.ignore)
         return [tuple(group[1]) for group in groups if group[0]]
 
-txt = ""
-with open('53.txt', encoding='utf-8') as f:
-    for line in f:
-        txt += line
+#txt = ""
+#with open('53out.txt', encoding='utf-8') as f:
+#    for line in f:
+#        txt += line
+#
+#stopwords = []
+#with open('data\stopwords\en', encoding='utf-8') as f:
+#    for line in f:
+#        stopwords.append(line[:len(line)-1])
+#
+#punctuations = '!@#$%^&*()_+=?/.,;:°–'
+#
+#ke = KeywordExtractor(stopwords = stopwords, punctuations=punctuations)
+#ke.extractKeyWords(txt)
+#ans = ke.getRankedPhrases()
+#
+#ofile = codecs.open("outkw.txt", "w", "utf-8")
+#for w in ans:
+#    _w = re.search(w, txt, re.IGNORECASE)
+#    if _w:
+#        ofile.write(_w.group(0)+'\n---------------\n')
+#    #ofile.write(w+'\n---------------\n')
+#ofile.close()
 
-stopwords = []
-with open('data\stopwords\en', encoding='utf-8') as f:
-    for line in f:
-        stopwords.append(line[:len(line)-1])
-
-punctuations = '!@#$%^&*()_+=?/.,;:'
-
-ke = KeywordExtractor(stopwords = stopwords, punctuations=punctuations)
-ke.extractKeyWords(txt)
-ans = ke.getRankedPhrases()
-
-ofile = codecs.open("outkw.txt", "w", "utf-8")
-for w in ans:
-    ofile.write(w+'\n---------------\n')
-
-ofile.close()

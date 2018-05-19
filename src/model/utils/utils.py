@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from .logger import printInf
+from .logger import printLog
 
 UNK = "$UNK$"
 NUM = "$NUM$"
@@ -55,14 +55,14 @@ class CoNLLDataset(object):
 
 #Create a dictionary from dataset
 def getDictionary(datasets):
-    printInf("Building dictionary: ")
+    printLog("Building dictionary: ")
     dictWords = set()
     dictTags = set()
     for dataset in datasets:
         for words, tags in dataset:
             dictWords.update(words)
             dictTags.update(tags)
-    printInf("DONE: " + str(len(dictWords)) + " size")
+    printLog("DONE: " + str(len(dictWords)) + " size")
     return dictWords, dictTags
 
 def getCharDictionary(dataset):
@@ -74,17 +74,17 @@ def getCharDictionary(dataset):
 
 #filename - path wo file with vectors
 def getGloveDictionary(filename):
-    printInf("Building dictionary")
+    printLog("Building dictionary")
     dictGlove = set()
     with open(filename, encoding='utf-8') as f:
         for line in f:
             word = line.strip().split(' ')[0]
             dictGlove.add(word)
-    printInf("DONE: "+ str(len(dictGlove)) +" tokens")
+    printLog("DONE: "+ str(len(dictGlove)) +" tokens")
     return dictGlove
 
 def saveDictionary(dictionary, filename):
-    printInf("SAVE")
+    printLog("SAVE")
     with open(filename, "w", encoding='utf-8') as f:
         for i, word in enumerate(dictionary):
             if i != len(dictionary) - 1:
@@ -125,32 +125,29 @@ def getCompactGloveVectors(filename):
 def getProcessingWord(dictWords=None, dictChars=None,
                     lowercase=False, chars=False, allowUNK=True):
     def f(word):
-        # char ids from word
+        # char ids for word
         if (dictChars is not None) and (chars == True):
             charIDs = []
             for char in word:
-                if char in dictChars:
-                    charIDs += [dictChars[char]]
-
+                if (char in dictChars):
+                    charIDs.append(dictChars[char])
         if lowercase:
             word = word.lower()
         if word.isdigit():
             word = NUM
-
         # word id
-        if dictWords is not None:
+        if (dictWords is not None):
             if word in dictWords:
                 word = dictWords[word]
+            elif allowUNK:
+                word = dictWords[UNK]
             else:
-                if allowUNK:
-                    word = dictWords[UNK]
-                else:
-                    raise Exception("Unknow key is not allowed. Check your tags.")
-
+                raise Exception("Unknow tag.")
         if (dictChars is not None) and (chars == True):
-            return charIDs, word # chars ids and word id
-        else:
-            return word           # word id
+            # chars ids and word id
+            return charIDs, word
+        # word id
+        return word
     return f
 
 

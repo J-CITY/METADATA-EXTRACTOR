@@ -4,6 +4,14 @@ refWords = [
 
 #Keywords
 
+supportWords = [
+	'sea', 'bay', 'ocean', 'gluf', 'river', 'lake', 'island', 'creek',
+	'north', 'pacif', 'atlant', 'ice', 'model', 'east', 'water', 'struct','west', 
+	'zone', 'central', 'university', 'organic', 'max', 'min', 'bird', 'fish',
+	'mammal', 'predation', 'pices', 'practical', 'workshop', 'climate', 'variab',
+	'coastal', 'pelagic', 'migration', 'maturat', 'meteor', 'atmos'
+]
+
 Keywords = ['Aquaculture', 'Marine Pollutants', 'Seasonality', 'North Atlantic', 
 			'Surface Water', 'Sea Surface Temperature', 'Primary Production', 
 			'Mixed Layer', 'Time Series', 'Water Masses', 'Deep Water', 'Southern Ocean',

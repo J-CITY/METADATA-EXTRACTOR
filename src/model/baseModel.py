@@ -1,10 +1,15 @@
+import os, sys
+parentPath = os.path.abspath("../")
+if parentPath not in sys.path:
+	sys.path.insert(0, parentPath)
+
 import os
 import tensorflow as tf
+from model.utils.logger import printLog
 
 class BaseModel(object):
     def __init__(self, config):
         self.config = config
-        self.logger = config.logger
         self.sess   = None
         self.saver  = None
 
@@ -48,7 +53,7 @@ class BaseModel(object):
 
     # reloade weights
     def reloadSession(self, dirModel):
-        self.logger.info("Reloading the latest model.")
+        printLog("Reloading the latest model.")
         self.saver.restore(self.sess, dirModel)
 
     # save weights
@@ -76,7 +81,7 @@ class BaseModel(object):
         self.addSummary() # save graph
 
         for epoch in range(self.config.nepochs):
-            self.logger.info("Epoch {:} out of {:}".format(epoch + 1, self.config.nepochs))
+            printLog("Epoch {:} out of {:}".format(epoch + 1, self.config.nepochs))
 
             score = self.runEpoch(train, dev, epoch)
             self.config.lr *= self.config.lrDecay # decay learning rate
@@ -86,11 +91,11 @@ class BaseModel(object):
                 nepochNoImprv = 0
                 self.saveSession()
                 bestScore = score
-                self.logger.info("- new best score!")
+                printLog("- new best score!")
             else:
                 nepochNoImprove += 1
                 if nepochNoImprv >= self.config.nepochNoImprove:
-                    self.logger.info("- early stopping {} epochs without "\
+                    printLog("- early stopping {} epochs without "\
                             "improvement".format(nepochNoImprv))
                     break
 
@@ -102,4 +107,4 @@ class BaseModel(object):
         metrics = self.runEvaluate(test)
         msg = " - ".join(["{} {:04.2f}".format(k, v)
                 for k, v in metrics.items()])
-        self.logger.info(msg)
+        printLog(msg)

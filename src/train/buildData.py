@@ -1,4 +1,9 @@
-from model.config import Config
+import os, sys
+parentPath = os.path.abspath("..")
+if parentPath not in sys.path:
+	sys.path.insert(0, parentPath)
+
+from config.config import Config
 from model.utils.utils import CoNLLDataset, getDictionary, UNK, NUM, \
     getGloveDictionary, saveDictionary, loadDictionary, getCharDictionary, \
     exportCompactGloveVectors, getProcessingWord

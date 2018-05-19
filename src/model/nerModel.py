@@ -3,14 +3,13 @@ import os
 import tensorflow as tf
 
 from .utils.utils import minibatches, padSequences, getChunks
-from .utils.logger import Progbar
+from .utils.logger import Progbar, printLog
 from .baseModel import BaseModel
 
 class NERModel(BaseModel):
     def __init__(self, config):
         super(NERModel, self).__init__(config)
-        self.idxToTag = {idx: tag for tag, idx in
-                           self.config.dictTags.items()}
+        self.idxToTag = {idx: tag for tag, idx in self.config.dictTags.items()}
 
     def addPlaceholders(self):
         # shape = (batch size, max length of sentence in batch)
@@ -41,16 +40,6 @@ class NERModel(BaseModel):
 
 
     def getFeedDict(self, words, labels=None, lr=None, dropout=None):
-        """
-        Creade dict
-        words: list of sentences. A sentence is a list of ids of a list of
-            words. A word is a list of ids
-        labels: list of ids
-        lr: (float) learning rate
-        dropout: (float) keep prob
-        return dict {placeholder: value}
-        """
-        # perform padding of the given data
         if self.config.useChars:
             charIds, wordIds = zip(*words)
             wordIds, sequenceLengths = padSequences(wordIds, 0)
@@ -89,7 +78,7 @@ class NERModel(BaseModel):
         """
         with tf.variable_scope("words"):
             if self.config.embeddings is None:
-                self.logger.info("WARNING: randomly initializing word vectors")
+                printLog("WARNING: randomly initializing word vectors")
                 _wordEmbeddings = tf.get_variable(
                         name="_wordEmbeddings",
                         dtype=tf.float32,
@@ -255,7 +244,7 @@ class NERModel(BaseModel):
         metrics = self.runEvaluate(dev)
         msg = " - ".join(["{} {:04.2f}".format(k, v)
                 for k, v in metrics.items()])
-        self.logger.info(msg)
+        printLog(msg)
         return metrics["f1"]
 
 
@@ -290,13 +279,12 @@ class NERModel(BaseModel):
 
 
     def predict(self, wordsRaw):
-        """
-        words_raw: list of words (string), just one sentence (no batch)
-        return preds: list of tags (string), one for each word in the sentence
-        """
         words = [self.config.processingWord(w) for w in wordsRaw]
+        #print(words)
         if type(words[0]) == tuple:
             words = zip(*words)
+
+
         predIds, _ = self.predictBatch([words])
         preds = [self.idxToTag[idx] for idx in list(predIds[0])]
         return preds

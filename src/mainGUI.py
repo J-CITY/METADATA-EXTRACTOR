@@ -1,9 +1,13 @@
 
-
+import sys
 import argparse
 from converter.extractor import Extractor
+from gui.presenter.presenter import Presenter
+from gui.view.configurator import App
+
 from config.config import Config
 config = Config(True)
+config.loadPreferences()
 extractor = Extractor(config)
 def parseArgs():
 	parser = argparse.ArgumentParser()
@@ -35,12 +39,20 @@ def parseArgs():
 	extractor.metaAll = args.metaAll
 
 
+from PyQt5.QtWidgets import QMainWindow, QApplication
 
 
 def main():
-	parseArgs()
-	extractor.extract()
-	extractor.save()
+	app = QApplication(sys.argv)
+	
+	ex = App()
+	presenter = Presenter(ex, extractor)
+	ex.setPresenter(presenter)
+
+	ex.show()
+	sys.exit(app.exec_())
+	#parseArgs()
+	#extractor.extract()
 
 main()
 	

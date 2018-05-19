@@ -1,6 +1,11 @@
+import os, sys
+parentPath = os.path.abspath("..")
+if parentPath not in sys.path:
+	sys.path.insert(0, parentPath)
+
 from model.utils.utils import CoNLLDataset
 from model.nerModel import NERModel
-from model.config import Config
+from config.config import Config
 
 
 def main():

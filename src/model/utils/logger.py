@@ -1,30 +1,15 @@
 import time
 import sys
-import logging
 import numpy as np
 
 DBG = True
 INF = True
 
-def printDbg(instr):
+def printLog(instr):
     if DBG == True:
-        print(instr)
-def printInf(instr):
-    if INF == True:
-        print(instr)
-
-# logger with filename - file to log
-def getLogger(filename):
-    logger = logging.getLogger('logger')
-    logger.setLevel(logging.DEBUG)
-    logging.basicConfig(format='%(message)s', level=logging.DEBUG)
-    handler = logging.FileHandler(filename)
-    handler.setLevel(logging.DEBUG)
-    handler.setFormatter(logging.Formatter(
-            '%(asctime)s:%(levelname)s: %(message)s'))
-    logging.getLogger().addHandler(handler)
-
-    return logger
+        print('DBG: '+instr)
+    elif INF == True:
+        print('INFO: '+instr)
 
 
 class Progbar(object):
