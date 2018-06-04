@@ -8,6 +8,7 @@ from pdfminer.pdfpage import PDFPage
 from io import BytesIO
 import codecs
 import re
+import os
 
 import nltk.data
 
@@ -63,6 +64,9 @@ class PDFContainer:
         return
 
     def convertPDFFilter(self, path):
+        if not os.path.exists(path):
+            return False
+
         fp = open(path, 'rb')
 
         ri = self.reinit()
@@ -105,15 +109,18 @@ class PDFContainer:
         fp.close()
         device.close()
         retstr.close()
-        return
+        return True
 
     def convertPDFAlternative(self, path):
         from PyPDF2.pdf import PdfFileReader
+        if not os.path.exists(path):
+            return False
         pdf = PdfFileReader(open(path, "rb"))
         for i in range(0, pdf.getNumPages()):
             print(i)
             extractedText = pdf.getPage(i).extractText()
             self.pages.append(extractedText)
+        return True
 
     def getTitles(self):
         return self.titles

@@ -11,7 +11,7 @@ from model.keywords import KeywordExtractor
 from model.reference import ExtracrReference
 from model.ner import NERExtractor
 from converter.dataContainer import DataPerson, DataLocation, DataKeyword, DataRef
-from converter.load import insertData
+from converter.load import insertData, insertDataFromFile
 
 import datetime
 import string
@@ -22,17 +22,21 @@ import re
 
 class Extractor:
 	def __init__(self, config):
+		self.pStart = -1
+		self.pEnd = -1
 		self.metaTitle = False
 		self.metaContent = False
 		self.metaName = False
 		self.metaLocation = False
 		self.metaKeyWord = False
 		self.metaRef = False
+		self.metaOrg = False
+		self.metaMisc = False
 		self.metaAll = False
 		self.config = config
 		self.INFilename = 'in.pdf'
 		self.OUTFilename = 'out.txt'
-
+		self.pdf = None
 		self.title = ''
 		
 		self.origin = ''
@@ -62,6 +66,13 @@ class Extractor:
 		self.locationsData = []
 
 		self.contact = DataPerson('')
+
+		self.genUUID = True
+		self.uuid = ""
+
+		self.miscData = []
+		self.orgData = []
+		self.locData = []
 	
 	def reinit():
 		self.namesData = []
@@ -89,6 +100,91 @@ class Extractor:
 		self.locationsData[id-1:id] = []
 	def delReference(self, id):
 		self.locationsData[id-1:id] = []
+
+	def extractRange(self):
+		self.typeOut = "txt"
+		self.pdf = PDFContainer(format=self.config.outPDFFormat, codec=self.config.fileCodec)
+		if self.pdf.format == "filter":
+			self.pdf.convertPDFFilter(self.INFilename)
+		else:
+			self.pdf.convertPDFAlternative(self.INFilename)
+		self.tokenizer = nltk.data.load(self.config.sentencesSplitterModel)
+		self.extractorNer = NERExtractor(self.config)
+		self.extractorLoc = Location(self.config.minTanimoto)
+
+		if self.pEnd == -1:
+			self.pEnd = self.pStart
+
+		# extract ner
+		txt = self.pdf.getPages(self.pStart, self.pEnd)
+		sents = txt.split('\n') # tokenizer.tokenize(txt)
+		if self.metaName or self.metaAll:
+			names = self.extractTags(sents, ["I-PER", "B-PER"])
+			for s in names:
+				self.namesData.append(s)
+		if self.metaLocation or self.metaAll:
+			loc = self.extractTags(sents, ["I-LOC", "B-LOC"])
+			for s in loc:
+				self.locData.append(s)
+		if self.metaOrg or self.metaAll:
+			org = self.extractTags(sents, ["I-ORG", "B-ORG"])
+			for s in org:
+				self.orgData.append(s)
+		if self.metaMisc or self.metaAll:
+			misc = self.extractTags(sents, ["I-MISC", "B-MISC"])
+			for s in misc:
+				self.miscData.append(s)
+		if self.metaLocation or self.metaAll:
+			# extract locations with coords	
+			sents = self.tokenizer.tokenize(txt)
+			self.extractLocation(sents)
+		if self.metaKeyWord or self.metaAll:
+			# extract key words
+			self.extractKeyWords(txt)
+		if self.metaRef or self.metaAll:
+			# extract refs
+			self.extractRefs(txt)
+		#SAVE
+		print(self.OUTFilename+' - OUT_FILE')
+		res = ""
+		if self.metaName or self.metaAll:
+			res += 'NAMES\n'
+			for s in self.namesData:
+				res += s + '\n'
+		if self.metaLocation or self.metaAll:
+			res += 'LOCATIONS\n'
+			for s in self.locationsData:
+				res += s.genText()+'\n'
+			res += 'OTHER LOCATIONS\n'
+			for s in self.locData:
+				res += s + '\n'
+		if self.metaOrg or self.metaAll:
+			res += 'ORGANISATION\n'
+			for s in self.orgData:
+				res += s + '\n'
+		if self.metaMisc or self.metaAll:
+			res += 'MISC\n'
+			for s in self.miscData:
+				res += s + '\n'
+		if self.metaKeyWord or self.metaAll:
+			res += 'KEY WORDS\n'
+			i = 0
+			for s in self.keywordsData:
+				kp = s.genText()
+				if i >= self.config.countKeyPhrases:
+					break
+				if len(kp.split()) > self.config.maxKeyPhraseLength or len(kp) < 4:
+					continue
+				res += kp+'\n'
+				i += 1
+			for s in self.keywordsLocData:
+				kp = s.genText()
+				res += kp+'\n'
+		if self.metaRef or self.metaAll:
+			res += 'REFS\n'
+			for s in self.refs:
+				res += s.genText()+'\n'
+		self.saveFile(self.OUTFilename, res)
 
 	def extract(self):
 		self.pdf = PDFContainer(format=self.config.outPDFFormat, codec=self.config.fileCodec)
@@ -141,11 +237,15 @@ class Extractor:
 		print(self.typeOut)
 		if self.typeOut == 'iso19115v2':
 			text = self.saveToISO19115v2()
-			insertData(self.config.protocol, self.config.url, self.config.user, self.config.passwd, text)
+			code, ans = insertData(self.config.protocol, self.config.url, self.config.user, self.config.passwd, text)
 		elif self.typeOut == 'fgdc':
 			text = self.saveToFGDC()
-			insertData(self.config.protocol, self.config.url, self.config.user, self.config.passwd, text)
-
+			code, ans = insertData(self.config.protocol, self.config.url, self.config.user, self.config.passwd, text)
+		return code
+	def loadFromFile(self, infile):
+		print(infile)
+		code, ans = insertDataFromFile(self.config.protocol, self.config.url, self.config.user, self.config.passwd, infile)
+		return code
 	def extractRefs(self, txt):
 		extr = ExtracrReference(txt)
 		_refs = extr.extract()
@@ -161,9 +261,15 @@ class Extractor:
 			_date = _d.group(0)
 		self.dateBegin = _date
 		self.dateEnd = "present"
+		if self.genUUID:
+			self.uuid = self.genIdentifier()
 
 	def extractName(self, sentences):
-		#STXTfile = codecs.open("namesOUTNAME.txt", "w", "utf-8")
+		names = self.extractTags(sentences, ["I-PER", "B-PER"])
+		for s in names:
+			self.namesData.append(DataPerson(s))
+
+	def extractTags(self, sentences, tags):
 		names = set()
 		for sentence in sentences:
 			wordsRaw, preds = self.extractorNer.extractFromSentence(sentence)
@@ -171,7 +277,7 @@ class Extractor:
 			res = ''
 			for i, w in enumerate(wordsRaw):
 				#STXTfile.write(w + ' - ' + preds[i] + '\n')
-				if preds[i] == "I-PER":
+				if preds[i] in tags: #preds[i] == "I-PER" or preds[i] == "B-PER":
 					#if i > 0 and (preds[i-1] == "I-LOC" or preds[i-1] == "B-LOC" or preds[i-1] == "I-ORG" or preds[i-1] == "B-ORG"):
 					#	res += wordsRaw[i-1] + ' '
 					res += w + ' '
@@ -192,9 +298,8 @@ class Extractor:
 					r = r.strip()
 					if len(r.split(' ')) > 1:
 						names.add(r.strip())
-		#STXTfile.close()
-		for s in names:
-			self.namesData.append(DataPerson(s))
+		return names
+		
 
 	def extractLocation(self, sents):
 		locmap = {}
@@ -298,7 +403,7 @@ class Extractor:
 			xmlns:gml="http://www.opengis.net/gml"
 			xsi:schemaLocation="http://www.isotc211.org/2005/gmd ../schema.xsd">
 		<fileIdentifier>
-			<gco:CharacterString>"""+self.genIdentifier()+"""</gco:CharacterString>
+			<gco:CharacterString>"""+self.uuid+"""</gco:CharacterString>
 		</fileIdentifier>
 		<gmd:language>
 			<gco:CharacterString>eng</gco:CharacterString>
@@ -343,9 +448,11 @@ class Extractor:
 		
 
 		if self.metaTitle or self.metaAll:
-			_date = re.search(r'[0-9]{4}', self.title).group(0)
-			if _date is None:
+			_d = re.search(r'[0-9]{4}', self.title)
+			if _d is None:
 				_date = ""
+			else: 
+				_date = _d.group(0)
 			_title = self.title.replace('\n', ' ')
 			res += """
 		<gmd:identificationInfo>
@@ -490,8 +597,9 @@ class Extractor:
 			res += self.title+'\n'
 		if self.metaContent or self.metaAll:
 			res += 'CONTENT\n'
-			for t in self.pdf.getTitles():
-				res += t+'\n'
+			if self.pdf != None:
+				for t in self.pdf.getTitles():
+					res += t+'\n'
 		if self.metaName or self.metaAll:
 			res += 'NAMES\n'
 			for s in self.namesData:

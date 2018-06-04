@@ -56,18 +56,20 @@ class NERExtractor:
 #ner.extractFromSentence("Bob and Daniil go to New York.")
 
 
-#from converter.pdfextractor import PDFContainer
-#import nltk.data
-#
-#pdf = PDFContainer(format="text", codec='utf-8')	
-#pdf.convertPDF("29.pdf")
-#txt = pdf.getPages(0, 5)
-#
-#tokenizer = nltk.data.load('data/tokenizers/english.pickle')
-#sents = tokenizer.tokenize(txt)
-#
-#ofile = codecs.open("outtext.txt", "w", "utf-8")
-#for w in sents:
-#    ofile.write(w+'\n\n')
-#ofile.close()
-#runModel(sents)
+from converter.pdfextractor import PDFContainer
+import nltk.data
+
+pdf = PDFContainer(format="filter", codec='utf-8')	
+pdf.convertPDFFilter("50.pdf")
+txt = pdf.getPages(0, 5)
+
+tokenizer = nltk.data.load('data/tokenizers/english.pickle')
+sents = tokenizer.tokenize(txt)
+
+ofile = codecs.open("outtext.txt", "w", "utf-8")
+for w in sents:
+    ofile.write(w+'\n\n')
+ofile.close()
+
+
+runModel(sents)

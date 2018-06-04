@@ -5,7 +5,7 @@ if parentPath not in sys.path:
 
 import config.strings_en as strings
 
-from PyQt5.QtWidgets import (QLineEdit, QLabel, QGridLayout, 
+from PyQt5.QtWidgets import (QLineEdit, QLabel, QGridLayout, QCheckBox,
 	QListWidget,QListWidgetItem, QWidget, QPushButton, QFormLayout)
 
 class InfoCard(QWidget):
@@ -23,6 +23,7 @@ class InfoCard(QWidget):
 		self.lStatusProgress          = QLabel(strings.LABLE_STATUS_PROGRESS)
 		self.lStatusUpdate    = QLabel(strings.LABLE_POSTAL_STATUS_UPDATE)
 		self.lAccess       = QLabel(strings.LABLE_ACCESS)
+		self.lUUID       = QLabel(strings.LABLE_UUID)
 
 
 		self.eOrigin          = QLineEdit()
@@ -45,10 +46,17 @@ class InfoCard(QWidget):
 		self.eStatusUpdate.textChanged[str].connect(self._onStatusUpdateChanged)
 		self.eAccess       = QLineEdit()
 		self.eAccess.textChanged[str].connect(self._onAccessChanged)
+		self.eUUID       = QLineEdit()
+		self.eUUID.textChanged[str].connect(self._onUUIDChanged)
+		self.cbUUID = QCheckBox(strings.LABLE_CB_UUID, self)
+		self.cbUUID.toggle()
+		self.cbUUID.stateChanged.connect(self._checkUUIDOnClick)
 
 		self.grid = QFormLayout()
 		self.grid.setSpacing(10)
 
+		self.grid.addRow(self.cbUUID)
+		self.grid.addRow(self.lUUID, self.eUUID)
 		self.grid.addRow(self.lOrigin, self.eOrigin)
 		self.grid.addRow(self.lTitle, self.eTitle)
 		self.grid.addRow(self.lDateBegin, self.eDateBegin)
@@ -71,6 +79,10 @@ class InfoCard(QWidget):
 	def setPresenter(self, p):
 		self.presenter = p
 	
+	def _onUUIDChanged(self, text):
+		self.presenter.onInfoUUIDChanged(text)
+	def _checkUUIDOnClick(self, state):
+		self.presenter._checkUUIDOnClick(state)
 	def _onOriginChanged(self, text):
 		self.presenter.onInfoOriginChanged(text)
 	def _onTitleChanged(self, text):

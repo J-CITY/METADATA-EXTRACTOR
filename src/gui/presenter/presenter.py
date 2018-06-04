@@ -1,9 +1,11 @@
 from PyQt5.QtCore import Qt, QThread,pyqtSignal, QObject
 import threading
+import os
 
 class Worker(QObject):
 	setProgress = pyqtSignal([int])
 	finished = pyqtSignal()
+	finishedErr = pyqtSignal([str])
 
 	def __init__(self, model):
 		super(Worker, self).__init__()
@@ -26,12 +28,19 @@ class Worker(QObject):
 
 			self.setProgress.emit(0)
 			#view.isVisibleProgress(True)
-
+			filename, file_extension = os.path.splitext(self.model.INFilename)
+			if file_extension.lower() != '.pdf':
+				self.finishedErr.emit("File is not PDF")
+				return
 			self.model.pdf = PDFContainer(format=self.model.config.outPDFFormat, codec=self.model.config.fileCodec)
 			if self.model.pdf.format == "filter":
-				self.model.pdf.convertPDFFilter(self.model.INFilename)
+				testExist = self.model.pdf.convertPDFFilter(self.model.INFilename)
 			else:
-				self.model.pdf.convertPDFAlternative(self.model.INFilename)
+				testExist = self.model.pdf.convertPDFAlternative(self.model.INFilename)
+			if not testExist:
+				self.finishedErr.emit("No such file")
+				return
+			
 			self.setProgress.emit(10)
 			self.model.tokenizer = nltk.data.load(self.model.config.sentencesSplitterModel)
 			self.setProgress.emit(20)
@@ -83,6 +92,7 @@ class Presenter:
 		self.workerThread.started.connect(self.workerObject.run)
 		self.workerObject.setProgress.connect(self.setProgress)
 		self.workerObject.finished.connect(self.updateGUI)
+		self.workerObject.finishedErr.connect(self.updateErr)
 		self.workerThread.start()
 
 	def extract(self):
@@ -140,6 +150,7 @@ class Presenter:
 			#self.view.isVisibleProgress(False)
 	
 	def updateGUI(self):
+		self.view.setUUID(self.model.uuid)
 		self.view.setNamesData(self.model.namesData)
 		self.view.setKeywordsData(self.model.keywordsData, self.model.keywordsLocData)
 		self.view.setLocationsData(self.model.locationsData)
@@ -147,6 +158,11 @@ class Presenter:
 		self.view.setInfoData(self.model.title, self.model.dateBegin, self.model.dateEnd)
 		self.view.isVisibleProgress(False)
 		self.workerThread.quit()
+	
+	def updateErr(self, err):
+		self.view.isVisibleProgress(False)
+		self.workerThread.quit()
+		self.view.statusErr(err)
 
 	def setProgress(self, p):
 		self.view.setProgress(p)
@@ -163,7 +179,12 @@ class Presenter:
 		self.model.save()
 
 	def loadOcClick(self):
-		self.model.load()
+		code = self.model.load()
+		self.view.statusErr("Load: " + str(code))
+	
+	def loadFileOcClick(self, infile):
+		code = self.model.loadFromFile(infile)
+		self.view.statusErr("Load: " + str(code))
 
 	def checkTitleOnClick(self, state):
 		if state == Qt.Checked:
@@ -336,6 +357,13 @@ class Presenter:
 		self.model.statusEnd = text
 	def onInfoAccessChanged(self, text):
 		self.model.access = text
+	def onInfoUUIDChanged(self, text):
+		self.model.uuid = text
+	def _checkUUIDOnClick(self, state):
+		if state == Qt.Checked:
+			self.model.genUUID = True
+		else:
+			self.model.genUUID  = False
 
 	# settings
 	def getPrefs(self):

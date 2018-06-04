@@ -9,6 +9,30 @@ from converter.preferences import Preferences
 from PyQt5.QtWidgets import (QWidget, QDialog, QGroupBox, QGridLayout,
 	QLineEdit, QPushButton, QFormLayout, QLabel, QTabWidget, QComboBox)
 
+from PyQt5.QtWidgets import (QTabBar,QStyle,QStylePainter,QStyleOptionTab)
+from PyQt5.QtGui import (QPainter,QFont,QPalette)
+from PyQt5.QtCore import (Qt, QSize)
+class HorizontalTabWidget(QTabBar):
+	def __init__(self, parent=None, *args, **kwargs):
+		self.tabSize = QSize(kwargs.pop('width',100), kwargs.pop('height',25))
+		QTabBar.__init__(self, parent, *args, **kwargs)
+
+	def paintEvent(self, event):
+		painter = QStylePainter(self)
+		option = QStyleOptionTab()
+ 
+		for index in range(self.count()):
+			self.initStyleOption(option, index)
+			tabRect = self.tabRect(index)
+			tabRect.moveLeft(5)
+			painter.drawControl(QStyle.CE_TabBarTabShape, option)
+			painter.drawText(tabRect, Qt.AlignVCenter |
+				Qt.TextDontClip,
+				self.tabText(index))
+		painter.end()
+	def tabSizeHint(self,index):
+		return self.tabSize
+
 class SettingsDialog(QDialog):
 	def __init__(self, p):
 		super().__init__()
@@ -19,6 +43,8 @@ class SettingsDialog(QDialog):
 		
 		# Initialize tab screen
 		self.tabs = QTabWidget()
+		self.tabs.setTabBar(HorizontalTabWidget())
+		self.tabs.setTabPosition(2)
 		self.genGroupLogin() 
 		self.genGroupExtract() 
 		
@@ -59,6 +85,7 @@ class SettingsDialog(QDialog):
 		self.login.textChanged.connect(self._changeLogin)
 		self.lPassword = QLabel("Password")
 		self.password = QLineEdit(self)
+		self.password.setEchoMode(QLineEdit.Password)
 		self.password.textChanged.connect(self._changePassword)
 
 		self.vboxl = QFormLayout()

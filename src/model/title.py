@@ -2,17 +2,25 @@ import re
 import codecs
 
 def extractTitle(text):
-    title = re.search(r'PICES SCIENTIFIC REPORT(\s*)No\.(\s*)([0-9]+),?(\s*)[0-9]{4}([a-zA-z0-9\.,\-\s]*)( \n)*', text, re.IGNORECASE|re.UNICODE)
-    if title is None:
-        return ''
-    _title = title.group(0)
-    tt = _title.split('\n')
-    _title = ''
-    for t in tt:
-        if len(t) > 2:
-            _title += t + '\n'
+	tt = text.split('\n')
 
-    return _title
+	text = ""
+	for t in tt:
+		if len(t) > 1:
+			text += t+"\n"
+
+	title = re.search(r'PICES SCIENTIFIC REPORT(\s*)No\.(\s*)([0-9]+),?(\s*)[0-9]{4}([a-zA-z0-9:\.,\-\s]+)( \n)*', text, re.IGNORECASE|re.UNICODE)
+	if title is None:
+		return ''
+	_title = title.group(0)
+	tt = _title.split('\n')
+	_title = ''
+	for t in tt:
+		if len(t) > 2:
+			_title += t + '\n'
+		else:
+			break
+	return _title
 
 
 # pdf = PDFContainer(format="text", codec='utf-8')	

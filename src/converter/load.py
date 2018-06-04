@@ -14,7 +14,7 @@ def insertDataFromFile(protocol, url, user, passwd, path):
 	xmlFile = codecs.open(path, "r", "utf-8")
 	xmlPayload = xmlFile.read()
 	xmlFile.close()
-	insertData(protocol, url, user, passwd, xmlPayload)
+	return insertData(protocol, url, user, passwd, xmlPayload)
 	
 
 def insertData(protocol, url, user, passwd, xmlPayload):
@@ -30,6 +30,7 @@ def insertData(protocol, url, user, passwd, xmlPayload):
 	
 	headers = {'Content-Type': 'application/xml'}
 	response = session.post(insertURL, data=xmlInsert.encode('utf-8'), headers=headers)
+	print(response.text)
 	return(response.status_code, response.text)
 
 

@@ -22,14 +22,12 @@ METRIC_FREQUENCY = 2  # f
 class KeywordExtractor:
     def __init__(self, stopwords=None, punctuations=None,
         metric=METRIC_DEGREE_DIV_FREQUENCY,
-        minWordLength=5, maxPhraseLength=5, minWordAppears=5):
+        minWordLength=2, maxPhraseLength=5, minWordAppears=5):
 
         self.metric = metric
         self.stopwords = stopwords
-        #self.stopwords = nltk.corpus.stopwords.words('english')
         self.punctuations = punctuations
-        #self.punctuations = string.punctuation
-        #print(self.stopwords)
+
         self.minWordLength = minWordLength
         self.minWordAppears = minWordAppears
         self.maxPhraseLength = maxPhraseLength
@@ -69,7 +67,7 @@ class KeywordExtractor:
 
     def _filterPhrases(self):
         res = []
-        expr = re.compile('[!@#$%^&*()_+=?/.,;:°–\\-0-9”`~]+', re.UNICODE)
+        expr = re.compile('[!@#$%^&*()_+=?/.,;:°–\\-0-9”~]+', re.UNICODE)
         for p in self.rankedPhrases:
             if expr.search(p) != None:
                 continue
@@ -119,11 +117,9 @@ class KeywordExtractor:
         phrases = set()
         for sentence in sentences:
             words = [word.lower() for word in wordpunct_tokenize(sentence)]
-
-            #porter = nltk.PorterStemmer()
-            #_words = [porter.stem(t) for t in words]
-
-            phrases.update(self._getPhraseWords(words))
+            for p in self._getPhraseWords(words):
+                if len(p) <= self.maxPhraseLength:
+                    phrases.update([p])
         return phrases
 
     def _getPhraseWords(self, words):
@@ -135,11 +131,13 @@ class KeywordExtractor:
 #    for line in f:
 #        txt += line
 #
+#txt = """
+#Set within a year after the events of Batman Begins, Batman, Lieutenant James Gordon, and new district attorney Harvey Dent successfully begin to round up the criminals that plague Gotham City until a mysterious and sadistic criminal mastermind known only as the Joker appears in Gotham, creating a new wave of chaos. Batman's struggle against the Joker becomes deeply personal, forcing him to "confront everything he believes" and improve his technology to stop him. A love triangle develops between Bruce Wayne, Dent and Rachel Dawes. Written by Leon Lombardi
+#"""
 #stopwords = []
 #with open('data\stopwords\en', encoding='utf-8') as f:
 #    for line in f:
 #        stopwords.append(line[:len(line)-1])
-#
 #punctuations = '!@#$%^&*()_+=?/.,;:°–'
 #
 #ke = KeywordExtractor(stopwords = stopwords, punctuations=punctuations)
@@ -151,6 +149,6 @@ class KeywordExtractor:
 #    _w = re.search(w, txt, re.IGNORECASE)
 #    if _w:
 #        ofile.write(_w.group(0)+'\n---------------\n')
-#    #ofile.write(w+'\n---------------\n')
+#    ofile.write(w+'\n---------------\n')
 #ofile.close()
 
