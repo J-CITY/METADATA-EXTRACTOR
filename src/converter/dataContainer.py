@@ -234,7 +234,7 @@ class DataLocation:
 			self.north = ""
 			self.south = ""
 		else:
-			data = self.location.split('-')
+			data = self.location.split('+')
 			self.name = data[0]
 			self.west = data[4]
 			self.east = data[3]

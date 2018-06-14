@@ -9,27 +9,37 @@
             <a class="title" href="index.html">Documentation</a>
         </div>
         <div id="menu">
-            <div><a href="1.html">Settings</a></div>
+            <div><a href="settings.html">Settings</a></div>
+            <div><a href="cui.html">Console user interface</a></div>
+            <div><a href="use.html">Use</a></div>
             <div class="line"></div>
             <div><a href="dependences.html">Dependences</a></div>
         </div>
         <div id="content">
          <h2>About</h2>
-            METADATA EXTRACTOR
+            Программа METADATA EXTRACTOR предназначена для извлечения метаописаний  <br>
+            из неструктурированных текстов формата pdf. Она помогает частично автоматизировать <br> 
+            процесс подготовки метаописаний для системы GeoNetwork. <br><br>
+            METADATA EXTRACTOR извлекает данные следующих видов: <br>
+            1.	Заголовок документа (Title)<br>
+            2.	Год публикации (Year)<br>
+            3.	Имена (Names)<br>
+            4.	Локации (Locations)<br>
+            5.	Названия организация (Organizations)<br>
+            6.	Разное (Misc)<br>
+            7.	Библиографические ссылки (Bibliographic references)<br>
+            8.	Ключевые слова и словосочетания (Key words)<br><br>
+            METADATA EXTRACTOR работает под управлением операционной системы Windows и Linux. <br>
+            Note: тестировалось на ОС Windows 10 и GNU/Linux Manjaro 17.1.10 <br><br>
+            <b>Принцип работы</b><br>
+            На вход программе подается pdf файл, далее после его обработки автоматически заполнятся  <br>
+            поля форм. Извлечённые данные можно сохранить в формате txt, iso19115v2 или fgdc. Также  <br>
+            данные можно отправить на сервер GeoNetwork. <br>
+            Программа запускается с помощью <i>mainGUI.py</i> (графический режим) <i>main.py</i> (интерфейс командной  <br>
+            строки). <br>
             <br><br>
-            This is application to extract metadata from pdf and load it to GeoNetwork.
+            Больше информации в <i>UserGuide.pdf</i> и <i>AdminGuide.pdf</i>
             <br><br>
-            You can edit and configure data in iso19115v2/FGDC format.
-            <br><br>
-            Program extract: <br>
-            - authors<br> 
-            - title <br>
-            - year <br>
-            - names <br>
-            - locations with geografic coordinats<br>
-            - bibleografic references <br>
-            - kew words <br>
-            - key phrases
         </div>
     </body>
 </html>

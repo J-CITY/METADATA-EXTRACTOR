@@ -26,6 +26,15 @@ class Worker(QObject):
 			from converter.load import insertData
 			#self.model.extract()
 
+			self.model.refs = []
+			self.model.namesData = []
+			self.model.keywordsData = []
+			self.model.keywordsLocData = []
+			self.model.locationsData = []
+			self.model.miscData = []
+			self.model.orgData = []
+			self.model.locData = []
+
 			self.setProgress.emit(0)
 			#view.isVisibleProgress(True)
 			filename, file_extension = os.path.splitext(self.model.INFilename)

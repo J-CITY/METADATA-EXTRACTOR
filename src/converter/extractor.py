@@ -266,7 +266,12 @@ class Extractor:
 
 	def extractName(self, sentences):
 		names = self.extractTags(sentences, ["I-PER", "B-PER"])
+		_names = []
 		for s in names:
+			res = re.search(r'[/0-9()]|(University)|(Database)|(Ecology)|(No\.)', s, re.IGNORECASE|re.UNICODE)
+			if res is None:
+				_names.append(s)
+		for s in _names:
 			self.namesData.append(DataPerson(s))
 
 	def extractTags(self, sentences, tags):
@@ -333,14 +338,14 @@ class Extractor:
 					# get coords Coves, Seas, Bays, Islands
 					for key in locmap:
 						if self.extractorLoc.isFuzzyEqual(res, key, 3):
-							r = key + '-' + ''.join(str(x)+'-' for x in locmap[key]) + '\n'
+							r = key + '+' + ''.join(str(x)+'+' for x in locmap[key]) + '\n'
 							locations.add(r)
 							break
 					res = ''
 		for s in locations:
 			self.locationsData.append(DataLocation(s))
 		for s in locations:
-			kw = s.split('-')[0]
+			kw = s.split('+')[0]
 			self.keywordsLocData.append(DataKeyword(kw))
 
 	def extractKeyWords(self, txt):

@@ -1,0 +1,48 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Documentation</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div id="head">
+            <a class="title" href="index.html">Documentation</a>
+        </div>
+        <div id="menu">
+            <div><a href="settings.html">Settings</a></div>
+			<div><a href="cui.html">Console user interface</a></div>
+			<div><a href="use.html">Use</a></div>
+            <div class="line"></div>
+            <div><a href="dependences.html">Dependences</a></div>
+        </div>
+        <div id="content">
+			<h2>CUI</h2>
+			<br>
+			<table border="1">
+				<tr>
+				<th>Команда</th>	
+				<th>Описание</th>
+				</tr>
+				<tr><td>--type -t</td><td>	Тип выходного файла txt, iso19115 или fgdc</td></tr>
+				<tr><td>--input_file -in</td><td>	Название входного файла</td></tr>
+				<tr><td>--output_file -out</td><td>	Название выходного файла</td></tr>
+				<tr><td>--metaTitle</td><td>	Извлечение заголовка</td></tr>
+				<tr><td>--metaContent</td><td>	Извлечение оглавления</td></tr>
+				<tr><td>--metaName</td><td>	Извлечение авторов</td></tr>
+				<tr><td>--metaLocation</td><td>	Извлечение локаций</td></tr>
+				<tr><td>--metaKeyWord</td><td>	Извлечение ключевых слов и словосочетаний</td></tr>
+				<tr><td>--metaRef</td><td>	Извлечение библиографических ссылок</td></tr>
+				<tr><td>--metaOrg</td><td>	Извлечение организаций</td></tr>
+				<tr><td>--metaMisk</td><td>	Извлечение разного</td></tr>
+				<tr><td>--metaAll</td><td>	Извлечение всех метаданных</td></tr>
+				<tr><td>--formatPdf</td><td>	Метод извлечений текста из pdf файла: filter – с фильтрацией, text – без фильтрации</td></tr>
+				<tr><td>--start</td><td>	Начальная страница для извлечения метаописаний</td></tr>
+				<tr><td>--end</td><td>	Конечная страница для извлечения метаописаний</td></tr>
+			</table>
+			<br>
+			<b>Пример:</b>b> main.py –metaAll –start 10 –end 20 –out out.txt –t txt –in in.pdf<br><br>
+			<i>Из файла «in.pdf» со страницы 10 по страницу 20 извлекаются все метаданные и сохраняются в файл «out.txt» в формате «txt».</i><br>
+
+        </div>
+    </body>
+</html>

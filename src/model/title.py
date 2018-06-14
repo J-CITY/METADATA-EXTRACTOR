@@ -9,7 +9,7 @@ def extractTitle(text):
 		if len(t) > 1:
 			text += t+"\n"
 
-	title = re.search(r'PICES SCIENTIFIC REPORT(\s*)No\.(\s*)([0-9]+),?(\s*)[0-9]{4}([a-zA-z0-9:\.,\-\s]+)( \n)*', text, re.IGNORECASE|re.UNICODE)
+	title = re.search(r'PICES SCIENTIFIC REPORT(\s*)No\.(\s*)([0-9]+),?(\s*)[0-9]{4}([a-zA-z0-9:\.,\-\s/\\()]+)( \n)*', text, re.IGNORECASE|re.UNICODE)
 	if title is None:
 		return ''
 	_title = title.group(0)

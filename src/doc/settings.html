@@ -1,0 +1,44 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Documentation</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div id="head">
+            <a class="title" href="index.html">Documentation</a>
+        </div>
+        <div id="menu">
+            <div><a href="settings.html">Settings</a></div>
+            <div><a href="cui.html">Console user interface</a></div>
+            <div><a href="use.html">Use</a></div>
+            <div class="line"></div>
+            <div><a href="dependences.html">Dependences</a></div>
+        </div>
+        <div id="content">
+            <h2>Settings</h2>
+            Открыть настройки <i>«F3»</i> или <i>Menu->?->Settings</i>
+            <br><br>
+            <b>Описание вкладки</b> <i>«Login»</i><br><br>
+            Выпадающий список «Protocol» – http / https.<br><br>
+            Поле «URL» - адрес сервера GeoNetwork.<br><br>
+            Поле «Login» - имя пользователя GeoNetwork.<br><br>
+            Поле «Password» - пароль пользователя GeoNetwork.<br><br>
+            <br>
+            <b>Описание вкладки</b> <i>«Extract»</i> <br><br>
+            Поле «Codec» - Кодек входного файла.<br><br>
+            Выпадающий список «PDF extractor» – «filter» / «text». «text» – быстрее. <br>
+                «filter» – удаляет ненужные элементы (таблицы, графики, …) <br><br>
+            Поле «Split model» - Путь к модели для разделения текста на предложения.<br><br>
+            Поле «Tanimoto» - Коэффициент для неточного сравнения строк.<br><br>
+            Поле «Stop words» - Путь к списку со стоп словами.<br><br>
+            Поле «Punctuation» - Символы пунктуации.<br><br>
+            Поле «Max length of key phrase» - Максимальная длина для ключевой фразы.
+            Поле «Count of key phrases» - Максимальное количество ключевых фраз.<br><br>
+            <br><br>
+            <b>Другие настройки</b><br><br>
+            В файле «config/dictionary.py» - хранится словарь с географическими объектами и их координатами. Его можно дополнять вручную.
+
+        </div>
+    </body>
+</html>
